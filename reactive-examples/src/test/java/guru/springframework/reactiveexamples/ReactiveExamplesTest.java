@@ -1,17 +1,21 @@
 package guru.springframework.reactiveexamples;
 
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-
 import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import lombok.extern.slf4j.Slf4j;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 /**
  * Created by jt on 8/24/17.
  */
 @Slf4j
+@SpringBootTest
 public class ReactiveExamplesTest {
 
     Person michael = new Person("Michael", "Weston");
@@ -44,17 +48,13 @@ public class ReactiveExamplesTest {
         log.info(command.sayMyName());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test()
     public void monoFilter() throws Exception {
         Mono<Person> personMono = Mono.just(sam);
-
-        //filter example
-        Person samAxe = personMono
-                .filter(person -> person.getFirstName().equalsIgnoreCase("foo"))
-                .block();
-
-
-        log.info(samAxe.sayMyName()); //throws NPE
+        StepVerifier.create(personMono.filter(person -> person.getFirstName().equalsIgnoreCase("foo")))
+        			.expectSubscription()
+        			.expectNextCount(0)
+        			.verifyComplete();
     }
 
     @Test
